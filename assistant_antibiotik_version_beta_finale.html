@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent!important;font-family:Arial,sans-serif}
+#botBtn{position:fixed;right:20px;bottom:20px;width:82px;height:82px;border:3px solid #12e4df;border-radius:50%;background:#071b28;cursor:pointer;z-index:999999;box-shadow:0 0 22px #12e4df;overflow:hidden;padding:0}
+.robot-avatar{width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#10475a,#071b28 70%)}
+.robot-avatar:before{content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);width:5px;height:13px;background:#12e4df;border-radius:5px}
+.robot-avatar:after{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:9px;height:9px;background:#ffd33d;border-radius:50%;box-shadow:0 0 10px #ffd33d}
+.robot-face{position:relative;width:62%;height:58%;background:linear-gradient(145deg,#f5ffff,#bdeef0);border:3px solid #12e4df;border-radius:35% 35% 42% 42%;box-shadow:0 0 12px #12e4df,inset 0 -7px 12px #75cdd2}
+.eye{position:absolute;top:27%;width:10px;height:14px;background:#071b28;border-radius:50%}
+.eye.left{left:22%}.eye.right{right:22%}
+.robot-mouth{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);color:#087f8c;font-size:23px;font-weight:bold}
+.ear{position:absolute;top:36%;width:7px;height:20px;background:#12e4df;border-radius:5px}
+.ear.left{left:-9px}.ear.right{right:-9px}
+.dot{position:absolute;right:3px;bottom:5px;width:16px;height:16px;background:#48e34d;border:3px solid #071b28;border-radius:50%}
+#help{position:fixed;right:20px;bottom:112px;background:#071b28;color:#fff;border:2px solid #12e4df;border-radius:14px;padding:9px 13px;font-size:12px;font-weight:900;z-index:999998;pointer-events:none}
+#help b{color:#12e4df}
+#chat{position:fixed;right:20px;bottom:115px;width:430px;height:600px;max-width:calc(100vw - 30px);max-height:calc(100vh - 135px);background:#06131e;border:2px solid #12e4df;border-radius:24px;box-shadow:0 0 30px #00d9ff55,0 14px 35px #0009;display:none;flex-direction:column;overflow:hidden;z-index:999999;pointer-events:auto}
+#chat.open{display:flex}
+.header{height:72px;min-height:72px;display:flex;align-items:center;gap:10px;padding:8px 12px;background:#071b28;color:#fff;border-bottom:1px solid #15394a}
+.avatar{width:54px;height:54px;border-radius:50%;border:2px solid #12e4df;overflow:hidden;flex:none}.avatar .robot-avatar{transform:scale(.95)}
+.title{flex:1}.title strong{display:block;font-size:17px}.title strong span{color:#12e4df}.title small{color:#b8d5df}
+.close{border:0;background:none;color:#fff;font-size:28px;cursor:pointer}
+.messages{flex:1;min-height:0;overflow-y:auto;padding:14px;background:radial-gradient(circle at 15% 10%,#0d2d3c,#06131e 55%)}
+.messages::-webkit-scrollbar{width:6px}.messages::-webkit-scrollbar-thumb{background:#12e4df;border-radius:10px}
+.msg{max-width:90%;padding:11px 13px;border-radius:16px;margin-bottom:10px;font-size:14px;line-height:1.45;color:#fff;word-wrap:break-word}
+.bot{background:#102b39;border:1px solid #315364}.user{margin-left:auto;background:#087f8c;border:1px solid #12e4df}.msg b{color:#12e4df}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;background:#071b28;flex:none}
+.quick button{border:1px solid #245467;background:#0c2635;color:#fff;border-radius:9px;padding:9px 4px;font-weight:900;font-size:11px;cursor:pointer}
+#codeBox{display:none;padding:7px 9px;background:#071b28;border-top:1px solid #15394a;flex:none}
+.code-title{color:#12e4df;font-size:13px;font-weight:900;margin-bottom:5px}
+.code-row{display:flex;gap:6px}.code-row input{flex:1;min-width:0;height:36px;padding:5px 10px;background:#0a202e;color:#fff;border:1px solid #12e4df;border-radius:9px;font-size:17px;text-align:center;letter-spacing:4px;outline:none}
+.code-row button{width:90px;height:36px;border:0;border-radius:9px;background:#ffc62d;font-weight:900;cursor:pointer}
+.inputrow{display:flex;gap:6px;padding:8px;background:#071b28;border-top:1px solid #15394a;flex:none}
+.inputrow input{flex:1;min-width:0;height:40px;background:#0a202e;color:#fff;border:1px solid #426373;border-radius:11px;padding:8px 10px;font-size:14px;outline:none}
+.inputrow button{width:45px;height:40px;border:0;border-radius:11px;background:#12c8c1;color:#06212a;font-size:20px;font-weight:900;cursor:pointer}
+@media(max-width:520px){#chat{right:8px;bottom:85px;width:calc(100vw - 16px);height:calc(100vh - 105px);max-width:none;max-height:none;border-radius:20px}#botBtn{right:10px;bottom:10px;width:68px;height:68px}#help{right:8px;bottom:84px}}
+</style>
+</head>
+<body>
+
+<button id="botBtn" type="button" aria-label="Ouvrir Assistant Antibiotik">
+<div class="robot-avatar"><div class="robot-face">
+<span class="ear left"></span><span class="ear right"></span>
+<span class="eye left"></span><span class="eye right"></span>
+<span class="robot-mouth">⌣</span>
+</div></div><span class="dot"></span>
+</button>
+
+<div id="help">Besoin d'aide, <b>agent ?</b> 🤖</div>
+<section id="chat">
+<header class="header">
+<div class="avatar"><div class="robot-avatar"><div class="robot-face">
+<span class="ear left"></span><span class="ear right"></span>
+<span class="eye left"></span><span class="eye right"></span>
+<span class="robot-mouth">⌣</span>
+</div></div></div>
+<div class="title"><strong>ASSISTANT <span>ANTIBIOTIK</span></strong><small>Maître de mission 🧪</small></div>
+<button id="close" class="close" type="button">×</button>
+</header>
+
+<div id="messages" class="messages"></div>
+
+<div class="quick">
+<button data-action="debut" type="button">🚪 DÉBUT</button>
+<button data-action="defi" type="button">🧪 VRAI / FAUX</button>
+<button data-action="mots" type="button">🧩 JEUX MÊLÉS</button>
+<button data-action="epreuve3" type="button">🚀 ÉPREUVE 3</button>
+<button data-action="indice" type="button">💡 INDICE</button>
+<button data-action="code" type="button">🔐 J'AI LE CODE</button>
+</div>
+
+<div id="codeBox">
+<div class="code-title">🔐 CODE FINAL</div>
+<div class="code-row">
+<input id="finalCode" type="text" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="CODE">
+<button id="checkCode" type="button">VALIDER</button>
+</div>
+</div>
+
+<div class="inputrow">
+<input id="input" type="text" autocomplete="off" placeholder="Écris ton message...">
+<button id="send" type="button">➤</button>
+</div>
+</section>
+
+<script>
+const botBtn=document.getElementById("botBtn");
+const chat=document.getElementById("chat");
+const closeBtn=document.getElementById("close");
+const messages=document.getElementById("messages");
+const help=document.getElementById("help");
+const codeBox=document.getElementById("codeBox");
+const finalCode=document.getElementById("finalCode");
+const checkCode=document.getElementById("checkCode");
+const input=document.getElementById("input");
+const send=document.getElementById("send");
+
+let started=false;
+let hint=0;
+let finished=false;
+let codeMode=false;
+
+function addMessage(text,type){
+ const m=document.createElement("div");
+ m.className="msg "+type;
+ m.innerHTML=text;
+ messages.appendChild(m);
+ messages.scrollTop=messages.scrollHeight;
+}
+function bot(text){addMessage(text,"bot")}
+function user(text){addMessage(text,"user")}
+
+function closeCodeBox(){
+ codeBox.style.display="none";
+ codeMode=false;
+}
+
+function openChat(){
+ chat.classList.add("open");
+ help.style.display="none";
+
+ if(!started){
+  started=true;
+  bot("👋 <b>BIENVENUE, AGENT !</b><br><br>Tu entres dans la <b>Mission Antibiotik</b> 🧪💊.");
+  setTimeout(function(){
+   bot("🚪 <b>COMMENT COMMENCER ?</b><br><br>Pour commencer ton aventure, clique sur <b>la porte avec le cadenas 🔒</b> sur la première page de ton escape game.<br><br>🎯 Ton objectif est de réussir <b>toutes les épreuves</b> afin de récolter les différents codes.<br><br>🔐 Ces codes te permettront ensuite de reconstituer le <b>code final</b>.<br><br>🌟 Bonne chance, Agent !");
+  },300);
+ }
+}
+
+botBtn.addEventListener("click",function(){
+ if(chat.classList.contains("open")) chat.classList.remove("open");
+ else openChat();
+});
+closeBtn.addEventListener("click",function(){chat.classList.remove("open")});
+
+function reply(action){
+ if(action==="debut"){
+  closeCodeBox();
+  bot(`🚪 <b>MISSION PRÉPARÉE !</b><br><br>
+Pour commencer ton aventure, tu dois d'abord ouvrir la porte du laboratoire. 🔒<br><br>
+🔑 <b>TON CODE D'ACCÈS :</b><br><br>
+<span style="font-size:24px;letter-spacing:3px;color:#ffc62d;font-weight:900;">bacterie</span><br><br>
+Note-le bien et utilise-le sur la porte verrouillée de la première page de ton escape game.<br><br>
+🧪 Une fois la porte ouverte, l'aventure pourra commencer !<br><br>
+🔥 Bonne chance, Agent !`);
+ }
+ else if(action==="mots"){
+  closeCodeBox();
+  bot(
+   "🧩 <b>ÉPREUVE 2 — LE LABORATOIRE DES MOTS</b><br><br>" +
+   "Une nouvelle mission t'attend, Agent !<br><br>" +
+   "🔎 <b>15 mots sont cachés dans la grille.</b><br>" +
+   "Les mots à retrouver sont déjà indiqués dans la liste : à toi de les repérer dans la grille.<br><br>" +
+   "🎯 Ton objectif : <b>retrouver les 15 mots</b>.<br><br>" +
+   "🧠 À chaque mot trouvé, une explication apparaît pour t'apprendre quelque chose d'utile sur les antibiotiques.<br><br>" +
+   "💡 <b>BESOIN D'UN INDICE ?</b><br><br>" +
+   "Pour obtenir de l'aide, écris exactement la commande, <b>en minuscules et sans espace</b> :<br><br>" +
+   "🔎 <b>indice1</b> → première aide<br>" +
+   "🧠 <b>indice2</b> → deuxième aide<br>" +
+   "🚨 <b>indice3</b> → aide la plus précise<br><br>" +
+   "❌ Écrire simplement « indice » ne déclenchera pas l'aide.<br><br>" +
+   "🔐 Je ne te donnerai pas le code de l'épreuve : il faudra le découvrir en terminant la mission."
+  );
+ }
+ else if(action==="indice1"){
+  bot("🔎 <b>INDICE 1</b><br><br>Les mots peuvent être cachés <b>horizontalement, verticalement ou en diagonale</b>.<br><br>Pense aussi à regarder <b>dans les deux sens</b> : de gauche à droite, mais aussi de droite à gauche.");
+ }
+ else if(action==="indice2"){
+  bot("🧠 <b>INDICE 2</b><br><br>Commence par les mots dont les lettres sont les plus faciles à repérer.<br><br>Cherche d'abord une <b>lettre rare ou facilement identifiable</b>, puis regarde autour d'elle pour voir si elle peut former un des mots de ta liste.");
+ }
+ else if(action==="indice3"){
+  bot("🚨 <b>INDICE 3</b><br><br>Choisis un mot de ta liste que tu n'as pas encore trouvé et cherche d'abord sa <b>première lettre</b> dans la grille.<br><br>Une fois trouvée, vérifie les directions autour d'elle : <b>horizontalement, verticalement ou en diagonale</b>, dans les deux sens.");
+ }
+ else if(action==="defi"){
+  closeCodeBox();
+  bot("🧪 <b>ÉPREUVE 1 — VRAI OU FAUX</b><br><br>Ton objectif est de répondre correctement aux <b>10 affirmations</b>.<br><br>🎯 Pour réussir cette épreuve, tu dois obtenir <b>10/10</b>.<br><br>🔓 Lorsque tu auras obtenu les <b>10 bonnes réponses</b>, un code te sera donné.<br><br>⚠️ <b>Conserve précieusement ce code !</b><br><br>Il te permettra de poursuivre l'aventure et sera nécessaire pour obtenir le <b>code final</b>.");
+ }
+ else if(action==="indice"){
+  closeCodeBox();
+  hint++;
+  const indices=[
+   "🔎 <b>INDICE 1</b><br><br>Commence par identifier le type de micro-organisme dont parle l'affirmation.",
+   "🔎 <b>INDICE 2</b><br><br>Pense à la différence entre une <b>bactérie</b> et un <b>virus</b>.",
+   "🔎 <b>INDICE 3</b><br><br>Attention aux mots comme « toujours », « systématiquement » ou « forcément »."
+  ];
+  bot(indices[Math.min(hint-1,2)]);
+ }
+ else if(action==="epreuve3"){
+  closeCodeBox();
+  bot(
+   "🚀 <b>ÉPREUVE 3 — MISSION À VENIR…</b><br><br>" +
+   "<b>Agent, tu pensais vraiment que l’aventure allait s’arrêter ici ?</b><br><br>" +
+   "Tu viens d’atteindre la dernière étape de la <b>version bêta</b> de la Mission Antibiotik…<br><br>" +
+   "Mais rassure-toi : <b>ce n’est que le début.</b><br><br>" +
+   "De nouvelles énigmes, des défis encore plus fun, des surprises et peut-être même quelques missions secrètes sont déjà en préparation.<br><br>" +
+   "📱 <b>Alors surtout, garde précieusement le QR Code qui t’a permis d’accéder à cette escape game.</b> Il pourrait bien te permettre de revenir tenter l’aventure une prochaine fois.<br><br>" +
+   "La <b>version finale</b> sera bientôt disponible… et cette fois, je compte bien te faire travailler un peu plus les méninges !<br><br>" +
+   "Merci d’avoir participé à cette aventure, d’avoir joué le jeu et d’être allé jusqu’au bout de la mission.<br><br>" +
+   "J’espère que tu repars avec quelques nouvelles connaissances sur les antibiotiques et, pourquoi pas, l’envie de partager ces connaissances autour de toi.<br><br>" +
+   "<b>À très bientôt pour une nouvelle mission.</b><br><br>" +
+   "🤖 <b>Ton Assistant Antibiotik adoré</b><br><br>" +
+   "<b>FIN DE LA MISSION… POUR L’INSTANT.</b>"
+  );
+ }
+ else if(action==="code"){
+  if(codeMode){closeCodeBox();return;}
+  codeMode=true;
+  codeBox.style.display="block";
+  bot("🔐 <b>CODE FINAL</b><br><br>Entre le code obtenu au cours de ton aventure.");
+  finalCode.focus();
+ }
+}
+
+
+document.querySelectorAll(".quick button").forEach(function(button){
+ button.addEventListener("click",function(){
+  user(button.textContent);
+  reply(button.dataset.action);
+ });
+});
+
+function validateCode(){
+ const code=finalCode.value.trim();
+ if(code==="5716"){
+  finished=true;
+  
+  
+  closeCodeBox();
+  bot("🎉 <b>FÉLICITATIONS, AGENT !</b><br><br>🏆 Tu viens de franchir toutes les épreuves !<br><br>Tu fais désormais partie des <b>Patients Experts en Antibiotiques</b> 🧪💊<br><br>🌟 Mais ta mission ne s'arrête pas là !<br><br>Partage maintenant tes connaissances avec ton entourage et aide à combattre les idées reçues sur les antibiotiques ! 🦠➡️💡<br><br>✨ <b>MISSION ACCOMPLIE !</b><br><br>Bravo pour ton courage, ta curiosité et ton esprit d'équipe !<br><br>👋 Bonne journée, <b>Agent Antibiotik !</b>");
+ }else{
+  bot("❌ <b>CODE INCORRECT</b><br><br>Ce n'est pas encore le bon code.<br><br>Vérifie les codes récoltés pendant les différentes épreuves et réessaie !");
+  finalCode.focus();
+ }
+}
+checkCode.addEventListener("click",validateCode);
+finalCode.addEventListener("keydown",function(event){if(event.key==="Enter")validateCode()});
+
+function sendMessage(){
+ const text=input.value.trim();
+ if(!text)return;
+ user(text);
+ input.value="";
+ setTimeout(function(){
+  const s=text.toLowerCase();
+  if(/début|commencer|porte|cadenas/.test(s))reply("debut");
+  else if(/vrai|faux|épreuve|10 bonnes/.test(s))reply("defi");
+ else if(/mots mêlés|mots meles|jeu mêlé|jeu mele|grille|15 mots/.test(s))reply("mots");
+  else if(/indice1/.test(s))reply("indice1");
+
+  else if(/indice2/.test(s))reply("indice2");
+
+  else if(/indice3/.test(s))reply("indice3");
+  else if(/epreuve3|épreuve 3|mission à venir|mission a venir/.test(s))reply("epreuve3");
+  else if(/indice|aide|bloqué|bloque|énigme/.test(s))reply("indice");
+  else if(/code|clé|5716/.test(s))reply("code");
+  else bot("🤖 Je t'écoute, Agent.<br><br>Tu peux me demander :<br>💡 un <b>indice</b><br>🧪 les règles du <b>Vrai/Faux</b><br>🚪 comment <b>commencer</b><br>🔐 comment utiliser ton <b>code</b>.");
+ },250);
+}
+send.addEventListener("click",sendMessage);
+input.addEventListener("keydown",function(event){if(event.key==="Enter")sendMessage()});
+</script>
+
+</body>
+</html>
